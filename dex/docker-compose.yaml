@@ -1,0 +1,24 @@
+services:
+  dex:
+    image: ghcr.io/dexidp/dex:${DEX_VERSION}
+    container_name: dex
+    restart: unless-stopped
+    command: ["dex", "serve", "/etc/dex/dex.yaml"]
+    volumes:
+      - ./dex.yaml:/etc/dex/dex.yaml:ro
+    networks:
+      - omni-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=omni-network"
+      - "traefik.http.routers.dex.rule=Host(`${AUTH_HOST}`)"
+      - "traefik.http.routers.dex.entrypoints=websecure"
+      - "traefik.http.routers.dex.tls=true"
+      - "traefik.http.routers.dex.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.dex.service=dex"
+      - "traefik.http.services.dex.loadbalancer.server.port=5556"
+
+networks:
+  omni-network:
+    name: omni-network
+    external: true

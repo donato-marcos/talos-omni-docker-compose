@@ -1,0 +1,46 @@
+account:
+  id: "44ac675b-0017-4022-8ed2-8c42a95e0331"
+  name: "omni-aesthar.com.br"
+
+services:
+  api:
+    endpoint: 0.0.0.0:8080
+    advertisedURL: "https://omni.aesthar.com.br/"
+  machineAPI:
+    endpoint: 0.0.0.0:8090
+    advertisedURL: "https://omni.aesthar.com.br:8090/"
+  kubernetesProxy:
+    endpoint: 0.0.0.0:8100
+    advertisedURL: "https://omni.aesthar.com.br:8100/"
+  siderolink:
+    eventSinkPort: 8091
+    wireGuard:
+      endpoint: 0.0.0.0:50180
+      advertisedEndpoint: "192.168.0.21:50180"
+
+auth:
+  initialUsers:
+    - "admin@testaesthar.com"
+  oidc:
+    enabled: true
+    providerURL: "https://auth.aesthar.com.br"
+    clientID: "omni"
+    clientSecret: "c3517c34734161ce3ba5ff2cb3bd83eeb4c208c987e7a02ce8b3fbfec3080289"
+    scopes:
+      - openid
+      - profile
+      - email
+
+storage:
+  default:
+    kind: etcd
+    etcd:
+      embedded: true
+      embeddedDBPath: /_out/etcd
+      privateKeySource: "file:///omni.asc"
+  sqlite:
+    path: /_out/sqlite/omni.db
+
+eulaAccept:
+  name: "teste"
+  email: "admin@testaesthar.com"

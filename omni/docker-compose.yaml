@@ -1,0 +1,56 @@
+services:
+  omni:
+    image: ghcr.io/siderolabs/omni:${OMNI_VERSION}
+    container_name: omni
+    restart: unless-stopped
+    command: ["--config-path=/config.yaml"]
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    volumes:
+      - ./config.yaml:/config.yaml:ro
+      - ./omni.asc:/omni.asc:ro
+      - ./data/etcd:/_out/etcd
+      - ./data/sqlite:/_out/sqlite
+    ports:
+      # 8090 (Machine API) e 8100 (K8s proxy) são publicados pelo Traefik, com TLS.
+      - "8091:8091"
+      - "50180:50180/udp"
+    networks:
+      - omni-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=omni-network"
+
+      # UI + API (porta interna 8080, h2c)
+      - "traefik.http.routers.omni.rule=Host(`${OMNI_HOST}`)"
+      - "traefik.http.routers.omni.entrypoints=websecure"
+      - "traefik.http.routers.omni.tls=true"
+      - "traefik.http.routers.omni.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.omni.service=omni"
+      - "traefik.http.services.omni.loadbalancer.server.port=8080"
+      - "traefik.http.services.omni.loadbalancer.server.scheme=h2c"
+
+      # Machine API / SideroLink (8090, h2c)
+      - "traefik.http.routers.mapi.rule=Host(`${OMNI_HOST}`)"
+      - "traefik.http.routers.mapi.entrypoints=mapi"
+      - "traefik.http.routers.mapi.tls=true"
+      - "traefik.http.routers.mapi.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.mapi.service=mapi"
+      - "traefik.http.services.mapi.loadbalancer.server.port=8090"
+      - "traefik.http.services.mapi.loadbalancer.server.scheme=h2c"
+
+      # Kubernetes proxy (8100, http)
+      - "traefik.http.routers.kproxy.rule=Host(`${OMNI_HOST}`)"
+      - "traefik.http.routers.kproxy.entrypoints=kproxy"
+      - "traefik.http.routers.kproxy.tls=true"
+      - "traefik.http.routers.kproxy.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.kproxy.service=kproxy"
+      - "traefik.http.services.kproxy.loadbalancer.server.port=8100"
+      - "traefik.http.services.kproxy.loadbalancer.server.scheme=http"
+
+networks:
+  omni-network:
+    name: omni-network
+    external: true

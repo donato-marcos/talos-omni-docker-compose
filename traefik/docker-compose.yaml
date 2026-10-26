@@ -1,0 +1,36 @@
+services:
+  traefik:
+    image: traefik:${TRAEFIK_VERSION}
+    container_name: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8090:8090"
+      - "8100:8100"
+    environment:
+      - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./certs:/certs
+    networks:
+      - omni-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=omni-network"
+
+      - "traefik.http.routers.traefik-http.rule=Host(`traefik.${BASE_DOMAIN}`)"
+      - "traefik.http.routers.traefik-http.entrypoints=web"
+      - "traefik.http.routers.traefik-http.tls=true"
+      - "traefik.http.routers.traefik-http.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.traefik-http.service=api@internal"
+      - "traefik.http.services.traefik-http.loadbalancer.server.port=8080"
+      - "traefik.http.services.traefik-http.loadbalancer.server.scheme=http"
+
+networks:
+  omni-network:
+    name: omni-network
+    external: true

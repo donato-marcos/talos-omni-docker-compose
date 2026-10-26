@@ -1,0 +1,34 @@
+kind: Cluster
+name: talos-cluster
+kubernetes:
+  version: v1.37.1
+  manifests:
+    - name: cilium
+      file: ./manifests/cilium.yaml
+      mode: one-time
+talos:
+  version: v1.14.4
+features:
+  disablePublicDiscoveryService: false
+patches:
+  - file: ./patches/common/cni.yaml
+  - file: ./patches/common/kubernetes.yaml
+  - file: ./patches/common/ntp.yaml
+  - file: ./patches/common/sysctl.yaml
+---
+kind: ControlPlane
+machines:
+  - 6ebf47a7-058f-44e8-b003-6b09f62f2d5f # Deve ser alterado para o seu lab
+patches:
+  - file: ./patches/controlplane/admissioncontrol.yaml
+  - file: ./patches/controlplane/kubeproxy.yaml
+  - file: ./patches/controlplane/vip.yaml
+  - file: ./patches/controlplane/extra-manifests.yaml
+---
+kind: Workers
+machines:
+  - 4a775be6-b7d7-454d-b4bf-0bbd466fe4a4 # Deve ser alterado para o seu lab
+  - 2316bed6-2ef4-4305-9592-e86227c650d1 # Deve ser alterado para o seu lab
+  - ead9a7b1-7283-417e-a77a-8c5b51f5f61d # Deve ser alterado para o seu lab
+patches:
+  - file: ./patches/worker/longhorn-v1.yaml

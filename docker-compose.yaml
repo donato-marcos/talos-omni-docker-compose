@@ -1,0 +1,12 @@
+include:
+  - path: ./traefik/docker-compose.yaml
+    env_file: ./.env
+  - path: ./dex/docker-compose.yaml
+    env_file: ./.env
+  - path: ./omni/docker-compose.yaml
+    env_file: ./.env
+
+networks:
+  omni-network:
+    name: omni-network
+    external: true

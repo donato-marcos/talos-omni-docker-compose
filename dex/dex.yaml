@@ -1,0 +1,23 @@
+issuer: https://auth.aesthar.com.br
+
+storage:
+  type: memory
+
+web:
+  http: 0.0.0.0:5556
+
+enablePasswordDB: true
+
+staticClients:
+  - id: omni
+    name: Omni
+    secret: c3517c34734161ce3ba5ff2cb3bd83eeb4c208c987e7a02ce8b3fbfec3080289
+    redirectURIs:
+      - https://omni.aesthar.com.br/oidc/consume
+
+staticPasswords:
+  - email: "admin@testaesthar.com"
+    username: "admin"
+    preferredUsername: "admin"
+    userID: "c541c47c-3dfb-4466-ae24-f497f05b97cb"
+    hash: "$2a$10$ENDwebzCeztFGyv3i/l6reD1mzRLsd8JCzyKz6ag69BPZlK5xB1MO"

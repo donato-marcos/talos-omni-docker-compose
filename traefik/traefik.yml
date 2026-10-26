@@ -1,0 +1,50 @@
+api:
+  dashboard: true
+  insecure: true
+
+log:
+  level: INFO
+
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+          permanent: true
+  websecure:
+    address: ":443"
+    http:
+      tls:
+        certResolver: letsencrypt
+  # Omni Machine API (SideroLink) - TLS terminado no Traefik
+  mapi:
+    address: ":8090"
+    http:
+      tls:
+        certResolver: letsencrypt
+  # Omni Kubernetes proxy - TLS terminado no Traefik
+  kproxy:
+    address: ":8100"
+    http:
+      tls:
+        certResolver: letsencrypt
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+    network: omni-network
+
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: "admin@testaesthar.com"
+      storage: /certs/acme.json
+      dnsChallenge:
+        provider: cloudflare
+        resolvers:
+          - "1.1.1.1:53"
+          - "1.0.0.1:53"
